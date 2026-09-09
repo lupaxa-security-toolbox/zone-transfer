@@ -28,12 +28,40 @@ def test_lookup_nameservers_empty_domain() -> None:
         lookup_nameservers("   ")
 
 
-def test_lookup_nameservers_returns_hosts_in_order() -> None:
+def test_lookup_nameservers_returns_hosts_sorted_by_name() -> None:
     answers = [_ns_rdata("ns2.example.net."), _ns_rdata("ns1.example.net.")]
     with patch("lupaxa.zone_transfer.ns._query", return_value=answers) as mocked:
         servers = lookup_nameservers("example.com", timeout=10.0)
     mocked.assert_called_once_with("example.com", "NS", 10.0)
-    assert [server.name for server in servers] == ["ns2.example.net", "ns1.example.net"]
+    assert [server.name for server in servers] == ["ns1.example.net", "ns2.example.net"]
+
+
+def test_lookup_nameservers_sorts_case_insensitively() -> None:
+    answers = [_ns_rdata("NS-B.example.net."), _ns_rdata("ns-a.example.net.")]
+    with patch("lupaxa.zone_transfer.ns._query", return_value=answers):
+        servers = lookup_nameservers("example.com")
+    assert [server.name for server in servers] == ["ns-a.example.net", "NS-B.example.net"]
+
+
+def test_expand_two_hosts_keeps_ipv4_before_ipv6_per_nameserver() -> None:
+    def fake_query(name: str, rdtype: str, timeout: float) -> list[MagicMock]:
+        del timeout
+        records = {
+            ("ns2.example.net", "A"): [_addr_rdata("203.0.113.20")],
+            ("ns2.example.net", "AAAA"): [_addr_rdata("2001:db8::20")],
+            ("ns1.example.net", "A"): [_addr_rdata("203.0.113.10")],
+            ("ns1.example.net", "AAAA"): [_addr_rdata("2001:db8::10")],
+        }
+        return records[(name, rdtype)]
+
+    with patch("lupaxa.zone_transfer.ns._query", side_effect=fake_query):
+        endpoints = expand_nameservers(["ns2.example.net", "ns1.example.net"])
+    assert [(item.nameserver, item.family, item.address) for item in endpoints] == [
+        ("ns1.example.net", "IPv4", "203.0.113.10"),
+        ("ns1.example.net", "IPv6", "2001:db8::10"),
+        ("ns2.example.net", "IPv4", "203.0.113.20"),
+        ("ns2.example.net", "IPv6", "2001:db8::20"),
+    ]
 
 
 def test_lookup_nameservers_nxdomain() -> None:

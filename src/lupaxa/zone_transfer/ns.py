@@ -26,8 +26,17 @@ def _host_text(rdata: object) -> str:
     return text.rstrip(".")
 
 
+def _name_sort_key(name: str) -> str:
+    return name.casefold()
+
+
+def _endpoint_sort_key(endpoint: Endpoint) -> tuple[str, int, str]:
+    family_rank = {"IPv4": 0, "IPv6": 1}.get(endpoint.family, 2)
+    return (_name_sort_key(endpoint.nameserver), family_rank, endpoint.address)
+
+
 def lookup_nameservers(domain: str, *, timeout: float = 10.0) -> list[NameServer]:
-    """Query ``NS`` records for ``domain`` in resolver order."""
+    """Query ``NS`` records for ``domain`` and return them in name order."""
     name = domain.strip()
     if not name:
         raise InvalidTargetError("empty domain")
@@ -47,7 +56,7 @@ def lookup_nameservers(domain: str, *, timeout: float = 10.0) -> list[NameServer
     servers = [NameServer(name=_host_text(rdata)) for rdata in answers]
     if not servers:
         raise NameserverLookupError(f"Domain '{name}' has no NS records.")
-    return servers
+    return sorted(servers, key=lambda server: _name_sort_key(server.name))
 
 
 def _as_ip(value: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
@@ -71,7 +80,7 @@ def _addresses_for(name: str, rdtype: str, timeout: float) -> tuple[list[str], s
 
 
 def expand_nameservers(values: list[str], *, timeout: float = 10.0) -> list[Endpoint]:
-    """Turn hostnames and IP literals into endpoints (A then AAAA, sorted)."""
+    """Turn hostnames and IP literals into endpoints (name order, IPv4 then IPv6)."""
     endpoints: list[Endpoint] = []
     for raw in values:
         value = raw.strip()
@@ -98,4 +107,4 @@ def expand_nameservers(values: list[str], *, timeout: float = 10.0) -> list[Endp
             endpoints.append(Endpoint(nameserver=value, address=address, family="IPv4"))
         for address in ipv6:
             endpoints.append(Endpoint(nameserver=value, address=address, family="IPv6"))
-    return endpoints
+    return sorted(endpoints, key=_endpoint_sort_key)

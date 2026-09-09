@@ -2,7 +2,8 @@
 
 Input is one or more domain names. Each name is inspected independently.
 When `--nameserver` is set, that list is used for every domain and `NS`
-discovery is skipped.
+discovery is skipped. Discovered nameservers are listed in name order.
+When a nameserver has both IPv4 and IPv6 addresses, IPv4 is tried first.
 
 ## CLI flags
 

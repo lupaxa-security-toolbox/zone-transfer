@@ -38,8 +38,9 @@ zone-transfer example.com --timeout 10 --no-color
 python -m lupaxa.zone_transfer --version
 ```
 
-The tool discovers `NS` records (or uses `--nameserver`), tries AXFR on
-every IPv4 and IPv6 address, prints a status table, and dumps records
+The tool discovers `NS` records (or uses `--nameserver`), sorts them by
+name with IPv4 before IPv6 for each host, tries AXFR on every address,
+prints a status table, and dumps records
 when a transfer is allowed. On a TTY it shows a spinner on stderr while
 lookups and transfers run. `--fail-open` exits `2` if any server
 allowed AXFR. `--format json` writes `{domain, error, attempts}`

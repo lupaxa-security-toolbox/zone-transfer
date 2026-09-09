@@ -22,6 +22,7 @@ and show the zone contents when they do.
 ## Features
 
 - Discover authoritative `NS` records or use repeatable `--nameserver` values
+- Sort nameservers by name; for each host, try IPv4 before IPv6
 - Resolve every IPv4 and IPv6 address for nameserver hostnames
 - Try AXFR against every discovered endpoint
 - Report `allowed`, `refused`, and `error` outcomes
