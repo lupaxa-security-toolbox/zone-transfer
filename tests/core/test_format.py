@@ -45,8 +45,9 @@ def test_format_report_includes_status_and_dump() -> None:
         ],
     )
     text = format_report(report, color=False)
+    cells = {part.strip() for line in text.splitlines() for part in line.split("|") if part.strip()}
     assert "Results for: example.com" in text
-    assert "ns1.example.net" in text
+    assert ENDPOINT.nameserver in cells
     assert "allowed" in text
     assert "www" in text
     assert "A" in text

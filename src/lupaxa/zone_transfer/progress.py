@@ -11,11 +11,14 @@ _FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 class StatusStream(Protocol):
     """Minimal stream used by ``StatusDisplay``."""
 
-    def isatty(self) -> bool: ...
+    def isatty(self) -> bool:
+        raise NotImplementedError
 
-    def write(self, text: str) -> int: ...
+    def write(self, text: str) -> int:
+        raise NotImplementedError
 
-    def flush(self) -> None: ...
+    def flush(self) -> None:
+        raise NotImplementedError
 
 
 class StatusDisplay:
