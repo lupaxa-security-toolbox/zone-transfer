@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 # =============================================================================
 # Site Information
 # =============================================================================
@@ -19,6 +20,9 @@ extra:
   # Hide left site nav (header already lists pages); keep on-this-page TOC.
   # Default when omitted: false (left nav visible).
   hide_primary_sidebar: false
+  # Viewer language picker (client-side translation; English URLs).
+  # Default when omitted: false (picker hidden).
+  language_picker: true
   # Optional short label for the header GitHub link.
   # If omitted, uses the repo segment of repo_name (org/repo → repo).
   repo_display_name: zone-transfer
@@ -71,7 +75,7 @@ theme:
   palette:
     scheme: slate
     primary: blue
-    accent: light-blue
+    accent: light blue
 
   icon:
     repo: fontawesome/brands/github
@@ -82,6 +86,9 @@ theme:
 
 plugins:
   - search
+
+hooks:
+  - hooks/asset_cache_bust.py
 
 # =============================================================================
 # Navigation
@@ -143,6 +150,7 @@ extra_css:
 
 extra_javascript:
   - assets/javascript/page-lifecycle.js
+  - assets/javascript/language-preference.js
   - assets/javascript/header-active-nav.js
 
 # =============================================================================
