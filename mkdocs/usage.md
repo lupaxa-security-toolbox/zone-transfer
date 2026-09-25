@@ -5,7 +5,7 @@ When `--nameserver` is set, that list is used for every domain and `NS`
 discovery is skipped. Discovered nameservers are listed in name order.
 When a nameserver has both IPv4 and IPv6 addresses, IPv4 is tried first.
 
-## CLI flags
+## CLI Flags
 
 | Flag                 | Default       | Description                                     |
 | :------------------- | :------------ | :---------------------------------------------- |

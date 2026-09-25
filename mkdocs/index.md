@@ -19,7 +19,7 @@ zone-transfer example.com
 
 You can also run `python -m lupaxa.zone_transfer`.
 
-## What it does
+## What it Does
 
 - Looks up `NS` records, or uses `--nameserver` (repeatable)
 - Resolves every `A` and `AAAA` for each nameserver hostname
@@ -30,10 +30,3 @@ You can also run `python -m lupaxa.zone_transfer`.
 - Prints JSON with `--format json`
 - Exits `2` with `--fail-open` when any server allowed AXFR
 - Exposes `inspect_domain` / `inspect_many` as library functions
-
-## Next steps
-
-- [Getting started](getting-started.md) — install and first run
-- [Usage](usage.md) — CLI flags and the library API
-- [Reference](reference.md) — JSON fields, statuses, and exit codes
-- [Examples](examples.md) — table, JSON, and library recipes

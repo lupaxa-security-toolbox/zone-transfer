@@ -1,6 +1,6 @@
 # Reference
 
-## Attempt status
+## Attempt Status
 
 | Status    | Meaning                                               |
 | :-------- | :---------------------------------------------------- |
@@ -8,14 +8,14 @@
 | `refused` | Server answered not permitted (`REFUSED` / `FORMERR`) |
 | `error`   | Timeout, connect failure, or no addresses             |
 
-## Exit codes
+## Exit Codes
 
 | Code | When                                                               |
 | :--- | :----------------------------------------------------------------- |
 | `0`  | Every domain was tested; refused and per-endpoint errors are OK    |
 | `2`  | Invalid input, `NS` discovery failure, or `--fail-open` + allowed  |
 
-## JSON shape
+## JSON Shape
 
 ```json
 [
@@ -40,7 +40,7 @@
 
 `error` is a string, never `null`. `records` is always a list.
 
-## Progress events
+## Progress Events
 
 `inspect_domain` and `inspect_many` accept optional `on_progress`. Each
 call receives a `Progress` object (`domain`, `phase`, `message`,
@@ -48,7 +48,7 @@ call receives a `Progress` object (`domain`, `phase`, `message`,
 (A/AAAA expansion), and `try` (one AXFR). The CLI uses this hook for a
 stderr spinner on a TTY.
 
-## Library exceptions
+## Library Exceptions
 
 | Exception               | When                                                                                            |
 | :---------------------- | :---------------------------------------------------------------------------------------------- |

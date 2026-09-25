@@ -4,20 +4,13 @@
   </a>
 </p>
 
-<h1 align="center">zone-transfer</h1>
+<h1 align="center">Zone Transfer</h1>
 
 Test whether a domain's nameservers allow DNS zone transfer (AXFR),
 and show the zone contents when they do.
 
-> [!WARNING]
-> **Authorised use only.** This tool contacts nameservers and can expose
+> **Warning:** **Authorised use only.** This tool contacts nameservers and can expose
 > a full zone. Use it only on systems you are allowed to test.
-
-<p align="center">
-  <a href="https://zone-transfer.thelupaxaproject.org/">Documentation</a>
-  ·
-  <a href="https://github.com/lupaxa-security-toolbox/zone-transfer">GitHub</a>
-</p>
 
 ## Install
 
@@ -64,6 +57,17 @@ does not print; the CLI uses that hook for the spinner.
 make init
 make python-install-dev
 make python-check
+```
+
+## Documentation
+
+The published guide is at
+<https://zone-transfer.thelupaxaproject.org/>.
+
+Site Markdown lives in `mkdocs/`.
+
+```bash
+python -m pip install -r requirements.txt
 make mkdocs-serve
 ```
 

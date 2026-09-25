@@ -1,4 +1,4 @@
-# Getting started
+# Getting Started
 
 ## Requirements
 
@@ -27,7 +27,7 @@ Module entry point:
 python -m lupaxa.zone_transfer --version
 ```
 
-### From source (development)
+### From Source (Development)
 
 ```bash
 make init
@@ -35,7 +35,7 @@ make python-install-dev
 zone-transfer --version
 ```
 
-## First run
+## First Run
 
 Pass one or more domain names. The tool discovers `NS` records, expands
 every address, and prints a status table. When a transfer is allowed it
@@ -66,7 +66,7 @@ Treat an allowed transfer as a finding:
 zone-transfer example.com --fail-open
 ```
 
-## Makefile helpers
+## Makefile Helpers
 
 ```bash
 make init                 # clone makefile-skills into .makefiles/

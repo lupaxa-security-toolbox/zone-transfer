@@ -1,18 +1,18 @@
 # Examples
 
-## Table (default)
+## Table (Default)
 
 ```bash
 zone-transfer example.com
 ```
 
-## Several domains
+## Several Domains
 
 ```bash
 zone-transfer example.com example.org
 ```
 
-## Pin nameservers
+## Pin Nameservers
 
 ```bash
 zone-transfer example.com --nameserver ns1.example.net --nameserver 2001:db8::1
@@ -24,7 +24,7 @@ zone-transfer example.com --nameserver ns1.example.net --nameserver 2001:db8::1
 zone-transfer example.com --format json
 ```
 
-## CI-style finding
+## CI-Style Finding
 
 ```bash
 zone-transfer example.com --fail-open
