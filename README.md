@@ -14,10 +14,15 @@ and show the zone contents when they do.
 
 ## Install
 
+Requires Python 3.10+. Runtime dependencies (`dnspython`, `prettytable`,
+and `colored`) install with the package.
+
 ```bash
 pip install lupaxa-zone-transfer
 zone-transfer --help
 ```
+
+You can also run `python -m lupaxa.zone_transfer`.
 
 ## CLI
 
@@ -31,25 +36,98 @@ zone-transfer example.com --timeout 10 --no-color
 python -m lupaxa.zone_transfer --version
 ```
 
-The tool discovers `NS` records (or uses `--nameserver`), sorts them by
-name with IPv4 before IPv6 for each host, tries AXFR on every address,
-prints a status table, and dumps records
-when a transfer is allowed. On a TTY it shows a spinner on stderr while
-lookups and transfers run. `--fail-open` exits `2` if any server
-allowed AXFR. `--format json` writes `{domain, error, attempts}`
-objects. On a colour terminal, `allowed` is red and `refused` is green.
+Each domain is inspected independently. The tool discovers `NS` records
+(or uses `--nameserver` for every domain and skips discovery), sorts
+hosts by name with IPv4 before IPv6, and tries AXFR on every address.
+On a TTY a spinner on stderr shows the current lookup or transfer.
+`--fail-open` exits `2` if any server allowed AXFR.
+
+| Flag                 | Default       | Description                                     |
+| :------------------- | :------------ | :---------------------------------------------- |
+| `--nameserver`, `-n` | discover `NS` | Nameserver host or IP (repeatable)              |
+| `--format`, `-f`     | `table`       | Output format: `table` or `json`                |
+| `--fail-open`        | off           | Exit `2` if any endpoint allowed AXFR           |
+| `--timeout`          | `10`          | DNS and AXFR timeout in seconds (must be `> 0`) |
+| `--no-color`         | off           | Disable colour in table output                  |
+| `--version`          | —             | Print the package version and exit              |
+
+Table output is titled with the domain. Rows are nameserver, address,
+family, status, and reason. For each `allowed` attempt a second table
+lists name, type, TTL, and rdata. On a colour terminal, `allowed` is
+red, `refused` is green, and `error` is grey. Pass `--no-color` or set
+`NO_COLOR` for plain text.
+
+JSON is a list of `{domain, error, attempts}` objects. Each attempt has
+`nameserver`, `address`, `family`, `status`, `reason`, and `records`.
+Record objects use `type` (not `rtype`). `error` is a string, never
+`null`. `records` is always a list.
+
+```json
+[
+  {
+    "domain": "example.com",
+    "error": "",
+    "attempts": [
+      {
+        "nameserver": "ns1.example.net",
+        "address": "203.0.113.10",
+        "family": "IPv4",
+        "status": "allowed",
+        "reason": "",
+        "records": [
+          {"name": "@", "type": "SOA", "ttl": 3600, "rdata": "ns1.example.net. hostmaster. 1 1 1 1 1"}
+        ]
+      }
+    ]
+  }
+]
+```
+
+### Attempt Status
+
+| Status    | Meaning                                               |
+| :-------- | :---------------------------------------------------- |
+| `allowed` | AXFR succeeded; `records` holds the zone              |
+| `refused` | Server answered not permitted (`REFUSED` / `FORMERR`) |
+| `error`   | Timeout, connect failure, or no addresses             |
+
+### Exit Codes
+
+| Code | When                                                              |
+| :--- | :---------------------------------------------------------------- |
+| `0`  | Every domain was tested; refused and per-endpoint errors are OK   |
+| `2`  | Invalid input, `NS` discovery failure, or `--fail-open` + allowed |
+
+A domain-level `NS` discovery failure sets `error` and exits `2`. A
+refused transfer is a normal result and exits `0` unless `--fail-open`
+saw an `allowed` attempt.
 
 ## Library
 
 ```python
-from lupaxa.zone_transfer import inspect_domain
+from lupaxa.zone_transfer import inspect_domain, inspect_many
 
 report = inspect_domain("example.com")
-print(report.attempts[0].status)
+pinned = inspect_domain("example.com", nameservers=["203.0.113.10"])
+reports = inspect_many(["example.com", "example.org"], timeout=10.0)
+
+for attempt in report.attempts:
+    print(attempt.endpoint.address, attempt.status)
+    for record in attempt.records:
+        print(record.name, record.rtype, record.rdata)
 ```
 
-Pass `on_progress` to receive lookup and transfer events. The library
-does not print; the CLI uses that hook for the spinner.
+`inspect_domain` does not raise when AXFR is refused or one address
+fails. Those become attempt rows. Empty domains, an empty nameserver
+list, or an empty `inspect_many` list raise `InvalidTargetError`.
+`NameserverLookupError` is raised by `lookup_nameservers`;
+`inspect_domain` catches it into `DomainReport.error`.
+`ZoneTransferError` is the base class.
+
+Pass `on_progress` to receive `Progress` events (`domain`, `phase`,
+`message`, `current`, `total`). Phases are `lookup` (NS discovery),
+`resolve` (A/AAAA expansion), and `try` (one AXFR). The library does
+not print; the CLI uses that hook for the spinner.
 
 ## Development
 
@@ -57,18 +135,6 @@ does not print; the CLI uses that hook for the spinner.
 make init
 make python-install-dev
 make python-check
-```
-
-## Documentation
-
-The published guide is at
-<https://zone-transfer.thelupaxaproject.org/>.
-
-Site Markdown lives in `mkdocs/`.
-
-```bash
-python -m pip install -r requirements.txt
-make mkdocs-serve
 ```
 
 <a href="https://github.com/the-lupaxa-project">
